@@ -1,29 +1,32 @@
 package ru.key4steam;
 
-import com.google.gson.JsonObject;
-import io.restassured.RestAssured;
+
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
-import junit.framework.TestCase;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Order;
 
 import java.util.Map;
-import java.util.Objects;
 
 import static io.restassured.RestAssured.*;
-import static io.restassured.config.EncoderConfig.encoderConfig;
+
 
 public class RestAssuredRequests {
-    Map<String, String> cookies;
+    private static Logger logger = LoggerFactory.getLogger(RestAssuredRequests.class);
+    public static Map<String, String> session;
     public static final String URL = "http://keys4steam.ru";
-    public static final String requestBody = "{\n" +
-            "  \"item_id\": \"10\",\n" +
-            "  \"quantity\": \"3\"}";
+    public static final JSONObject jsonObj = new JSONObject()
+            .put("item_id", 10)
+            .put("quantity", 3);
+    //public static final String requestBody = "";
 
-   // JsonObject value = new JsonObject();
 
     @Test
+    @Order(1)
     public void openLinkTest() {
         Response response = given()
                 .contentType(ContentType.JSON)
@@ -31,24 +34,27 @@ public class RestAssuredRequests {
                 .get(URL)
                 .then()
                 .extract().response();
-        //сохраняем ключ-значение sessionId
-        cookies = response.cookies();
-        System.out.println(cookies);
+        session = response.cookies(); //сохраняем ключ-значение sessionId
+        logger.info(session.toString());
         Assertions.assertEquals(200, response.statusCode());
     }
 
     @Test
+    @Order(2)
     public void addToCartTest() {
         Response response = given()
-                .header("Content-type", "application/json","charset=UTF-8", cookies)
+                .contentType(ContentType.MULTIPART)
+                .cookies(session)
                 .and()
-                .body((requestBody))
+                .multiPart("item_id", 10)
+                .multiPart("quantity", 10)
                 .when()
-                .post(URL + "/add_to_cart")
+                .post(URL + "/cart/add_to_cart")
                 .then()
                 .extract().response();
+        logger.info(response.asPrettyString());
         Assertions.assertEquals(200, response.statusCode());
-        Assertions.assertEquals(true,response.jsonPath().getString("Success"));
+        Assertions.assertEquals(true,Boolean.parseBoolean(response.jsonPath().getString("Success")));
 
     }
 }

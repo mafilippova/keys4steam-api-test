@@ -22,7 +22,6 @@ public class RestAssuredRequests {
     public static final JSONObject jsonObj = new JSONObject()
             .put("item_id", 10)
             .put("quantity", 3);
-    //public static final String requestBody = "";
 
 
     @Test
@@ -54,7 +53,7 @@ public class RestAssuredRequests {
                 .extract().response();
         logger.info(response.asPrettyString());
         Assertions.assertEquals(200, response.statusCode());
-        Assertions.assertEquals(true,Boolean.parseBoolean(response.jsonPath().getString("Success")));
+        Assertions.assertTrue(Boolean.parseBoolean(response.jsonPath().getString("Success")));
 
     }
 }

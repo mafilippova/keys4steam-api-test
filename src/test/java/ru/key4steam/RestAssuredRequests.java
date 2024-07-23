@@ -1,6 +1,7 @@
 package ru.key4steam;
 
 
+import io.restassured.specification.MultiPartSpecification;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,6 +55,5 @@ public class RestAssuredRequests {
         logger.info(response.asPrettyString());
         Assertions.assertEquals(200, response.statusCode());
         Assertions.assertTrue(Boolean.parseBoolean(response.jsonPath().getString("Success")));
-
     }
 }
